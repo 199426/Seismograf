@@ -1,0 +1,76 @@
+Code:
+
+//sensitivity variables
+int minimum = 200;
+int maximum= 1023;
+int maxdelay = 400;
+
+#include <Wire.h>
+#include <LCD.h>
+#include <LiquidCrystal_I2C.h>
+#define I2C_ADDR 0x27 // change to your address found with I2C scanner
+#define BACKLIGHT_PIN 3
+#define En_pin 2
+#define Rw_pin 1
+#define Rs_pin 0
+#define D4_pin 4
+#define D5_pin 5
+#define D6_pin 6
+#define D7_pin 7
+LiquidCrystal_I2C lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin);
+
+// Custom Character
+byte seismic[8] = {
+B11111,
+B11111,
+B11111,
+B11111,
+B11111,
+B11111,
+B11111,
+B11111,
+};
+
+//defines the pin connections
+int sensePin= 2;
+
+
+void setup()
+{
+Serial.begin(9600);
+
+lcd.begin (16,2); // or (20,4)
+// Switch on the backlight
+lcd.setBacklightPin(BACKLIGHT_PIN,POSITIVE);
+lcd.setBacklight(HIGH);
+
+lcd.createChar(0, seismic);
+lcd.begin(16, 2); 
+
+}
+
+void loop()
+{
+int reading= analogRead(sensePin);
+Serial.println(reading);
+reading = constrain(reading, minimum, maximum);
+Serial.println(reading);
+reading = map(reading, minimum, maximum, 0, 15);
+Serial.println(reading);
+lcd.clear();
+
+for (int i=0; i <= reading; i++){
+lcd.write(byte(0));
+
+} 
+
+if (8<=reading){
+lcd.setCursor(0, 1);
+lcd.print("Earthquake");
+delay(500);
+} 
+
+delay(maxdelay);
+lcd.clear();
+
+}
